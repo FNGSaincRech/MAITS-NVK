@@ -30,12 +30,12 @@ while True: # НАЧАЛО ЦИКЛА
             if event.from_user: #событие от пользователя, а не от группы или кого-нибудь другого
                 userId = event.user_id # запоминаем ID того, кто ищет, чтобы добавить в словарь
                 text = event.text # Текст пришедшего сообщения
-                if text.lower() == 'начать': # Приветсвие
-                    msg = "Привет. Введит help"
+                if text.lower() == '/start': # Приветсвие
+                    msg = "Привествую, список команд, доступных для дальнеших дейсвтий, можно посмотреть написав /help"
                     vk.messages.send(user_id=userId, message=msg, random_id=random.randint(0, maxint))
 
                 elif text == '/help': # на команду /help отправляет список функций
-                    outputMsg = "Добавить цель - /add id\nУдалить пользователя - /del id\n" # объявляем строковую переменную  outputMsg
+                    outputMsg = "Добавить пользователя в список отслеживания ID - /add id\nУдалить пользователя из списка отслеживаня - /del id\nПосмотреть статус каждого пользователя в списке отслеживания ID - /now \nЗакончить работу с ботом - /end\nПросмотр статуса конкретного пользователя- /now id\n Просмотр всех пользователей с ID в списке отслеживания-/allCheckID\nЗапрос отчёта по конкретному пользователю(h - часы, m - минуты) - /report ID h m  \n " # объявляем строковую переменную  outputMsg
                     vk.messages.send(user_id=userId, message=outputMsg, random_id=random.randint(0, maxint)) # отправляем сообщение выше
                 elif text.split()[0] == "/add": # добавляет нового пользователя в список отслеживания ID
                     aimId = text.split()[1] # Берем элемент из разрезанного текста под номером 1
@@ -58,7 +58,7 @@ while True: # НАЧАЛО ЦИКЛА
                         vk.messages.send(user_id=userId, message="ID должен содержать только цифры", random_id=random.randint(0, maxint)) # Защита от дурака
                 elif text.split()[0] == "/del":# delete #Удаляем пользователя из списка отслеживания ID
                     if userId in crossIDs:
-                        aimId = text.split()[1] # Присваиваем переменной aiID ID искомого человека
+                        aimId = text.split()[1] # Присваиваем переменной aimID ID искомого человека
                         if aimId.isdigit(): #Проверяем ID на дурака
                             if userId in crossIDs and aimId in crossIDs[userId]: #Если ищущий и искомый находятся в своих словарях, то
                                 crossIDs[userId].remove(aimId) #Удаляется запись о пользователе из первого словаря
@@ -73,10 +73,24 @@ while True: # НАЧАЛО ЦИКЛА
                             vk.messages.send(user_id=userId, message="ID должен содержать только цифры", random_id=random.randint(0, maxint))# Защита от дурака
                     else:
                         vk.messages.send(user_id=userId, message="У вас нет отслеживаемых целей", random_id=random.randint(0, maxint))
+                        vk.messages.send(user_id=userId, message="У вас нет отслеживаемых целей", random_id=random.randint(0, maxint))
+ #               elif text.split()[0] == "/delall":# delete #Удаляем пользователя из списка отслеживания ID
+  #                  if userId in crossIDs and aimId in crossIDs[userId]:
+   #                    while   > 0:
+    #                    crossIDs[userId].remove(aimId) #Удаляется запись о пользователе из первого словаря
+   #                     del aimsDict[aimId] #Удаляем из второго словаря(Из словаря искомых)
+  #                     if len(crossIDs) == 0:
+        #                   vk.messages.send(user_id=userId, message="Объекты удалены из списк отслеживания",random_id=random.randint(0, maxint))
+
+  #                  else:
+                     #   vk.messages.send(user_id=userId, message="У вас нет отслеживаемых целей", random_id=random.randint(0, maxint))
+   #                 print(aimsDict)
+  #                  print(crossIDs)
+
                 elif text == "/end":
                     if userId in crossIDs:
                         del crossIDs[userId]
-                        vk.messages.send(user_id=userId, message="Вы законцили работу с ботом.",
+                        vk.messages.send(user_id=userId, message="Вы закончили работу с ботом",
                                          random_id=random.randint(0, maxint))
                     else:
                         vk.messages.send(user_id=userId, message="У вас нет отслеживаемых целей",
@@ -105,7 +119,7 @@ while True: # НАЧАЛО ЦИКЛА
                         vk.messages.send(user_id=userId, message="У вас нет отслеживаемых целей", random_id=random.randint(0, maxint))
 
                 elif text == "/allCheckID": # Запрашиваем все отслеживаемые ID
-                    if text.split()[1] in crossIDs and text.split()[1] in aimsDict:
+                    if userId in crossIDs:
                         outputMsg = ""
                         for aimId in crossIDs[userId]: # для каждого искомого пользователя в словаре crossIDs
                             outputMsg += aimsDict[aimId]['name'] + " ID: " + aimId + "\n" #Добавляем в строковую переменную имя и ID
@@ -113,17 +127,18 @@ while True: # НАЧАЛО ЦИКЛА
                     else:
                         vk.messages.send(user_id=userId, message="У вас нет отслеживаемых целей", random_id=random.randint(0, maxint))
                 elif text.split()[0] == "/report": # Запрашиваем отчёт
-                    if text.split()[1].isdigit(): #проверка на дурака
+                    if text.split()[1].isdigit(): #проверка на числа
                         if userId in crossIDs:
                             reportDict = aimsDict[text.split()[1]]['report'] # создаём переменную reportDict, в которой хранится список времени и статуса введенного в /report пользователя
                             prms = text.split() #Создаём переменную(список), в которую вкладываем разрезанную строку(используем для удобства)
                             if len(prms) > 2:
                                 currTime = datetime.datetime.now() #Переменная с текущим временем
                                 h = int(prms[2]) # Мы берем второй элемент переменной prms, преоборазуем тип данных в int, присваиваем все это дело переменной h
-                                m = 0 #Создаём переменную минуты, которая потом будет равна либо введенным данным(минутам), либо равна 0, если пользователь не ввёл минуты
+                                 #Создаём переменную минуты, которая потом будет равна либо введенным данным(минутам), либо равна 0, если пользователь не ввёл минуты
+                                m = 0
                                 if len(prms) == 4: #смотрим длину списка, если она равна 4, то пользователь ввёл минуты
                                     m = int(prms[3]) #Присваивыем минуты введенные пользвателем
-                                limTime = currTime.replace(hour=currTime.hour - h, minute=currTime.minute - m, second=0, microsecond=0) #Создаем предел времени, до которого будет осуществляться мониторинг
+                                limTime = currTime.replace(hour=currTime.hour - h, minute = currTime.minute - m, second=0, microsecond=0) #Создаем предел времени, до которого будет осуществляться мониторинг
                                 #активности заданного пользователя
                                 #CurrTime.replace - беру текущую дату, отнимаю от неё h и m, введенные пользователем и все это запихиваю в лимит
                                 #Пример: текущее время 8:30, пользователь ввёл 1:15, отнимаем 8:30-1:15 = получаем нижний порог времени, с которого велась запись
@@ -150,7 +165,7 @@ while True: # НАЧАЛО ЦИКЛА
                         vk.messages.send(user_id=userId, message="ID должен содержать только цифры", random_id=random.randint(0, maxint)) #Проверка на дурака
 
                 else:
-                    vk.messages.send(user_id=userId, message="Неизвестная команда, введите /help или напишите 'начать'", random_id=random.randint(0, maxint)) #Выдаёт всегда, кода не найдено соответсвие с каждым if
+                    vk.messages.send(user_id=userId, message="Неизвестная команда, введите /help или напишите '/start'", random_id=random.randint(0, maxint)) #Выдаёт всегда, кода не найдено соответсвие с каждым if
 
     # update status
     aimIdsStr = ','.join(str(i) for i in aimsDict) # Список с ID искомых пользователей превратили в строку aimIdsStr и разделили запятыми
@@ -178,7 +193,7 @@ while True: # НАЧАЛО ЦИКЛА
         if aimsDict[currId] != -1: #Если ячейка в словаре искомых пользователей не пустая, то
             if aimsDict[currId]['status'] != currStat: #Если текущий статус не равен предыдущему, то
                 isChanged = True #Статус изменился
-                aimsDict[currId]['report'].append([datetime.datetime.now(), ": {0} {1}".format(aimsDict[currId]['name'], aimsDict[currId]['status'])]) #
+                aimsDict[currId]['report'].append([datetime.datetime.now(), ": В это время {0} был {1}".format(aimsDict[currId]['name'], aimsDict[currId]['status'])]) #
                 #Берем пользователя из искомого словаря с текущим ID и добавляем изменения в отчёт, то есть
                 #datetime.datetime.now() - текущая дата
                 #В пустое пространство через метод строки format добавляем в  {0} значение -  aimsDict[currId]['name']
@@ -201,4 +216,3 @@ while True: # НАЧАЛО ЦИКЛА
 
         if len(outputMsg) != 0: #Если сообщение не пустое, то отправить его пользователю
             vk.messages.send(user_id=userId, message=outputMsg, random_id=random.randint(0, maxint))
-
