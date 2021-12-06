@@ -145,7 +145,7 @@ while True: # НАЧАЛО ЦИКЛА
                                 outStr = "Отчёт по пользователю {0}: \n".format(aimsDict[text.split()[1]]['name']) #Создаём строковую переменную outStr
                                 for time in reportDict: #Прогоняем time(индекс) по списку, содержащего в себе данные о времени и статусе пользователя при выходе/входе
                                     if time[0] > limTime: #Если время в списке,содержащего в себе данные о времени и статусе пользователя при выходе/входе, больше нижнего порога, то выполняем
-                                        outStr += str(time[0])+time[1]+"\n" #Заполняем строку выодную строку: добавляю time[0](время) к time[1](Время и статус), так как ходим по списку reportDict, имеющий вид
+                                        outStr += time[0].strftime(" %d.%m.%Y %H:%M")+time[1]+"\n" #Заполняем строку выодную строку: добавляю time[0](время) к time[1](Время и статус), так как ходим по списку reportDict, имеющий вид
                                         #reportDict = [["Время входа/выхода из VK", "Имя и статус"], ["Время входа/выхода из VK 2", "Имя и статус 2"]] reportDict[0][0]
                                         #time = ["Время входа/выхода из VK", "Имя и статус"]
                                         #time[0] = "Время входа/выхода из VK "
@@ -193,7 +193,7 @@ while True: # НАЧАЛО ЦИКЛА
         if aimsDict[currId] != -1: #Если ячейка в словаре искомых пользователей не пустая, то
             if aimsDict[currId]['status'] != currStat: #Если текущий статус не равен предыдущему, то
                 isChanged = True #Статус изменился
-                aimsDict[currId]['report'].append([datetime.datetime.now(), ": В это время {0} был {1}".format(aimsDict[currId]['name'], aimsDict[currId]['status'])]) #
+                aimsDict[currId]['report'].append([datetime.datetime.now(), ": В это время {0} был(а) {1}".format(aimsDict[currId]['name'], aimsDict[currId]['status'])]) #
                 #Берем пользователя из искомого словаря с текущим ID и добавляем изменения в отчёт, то есть
                 #datetime.datetime.now() - текущая дата
                 #В пустое пространство через метод строки format добавляем в  {0} значение -  aimsDict[currId]['name']
