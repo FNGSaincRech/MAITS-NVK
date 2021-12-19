@@ -6,6 +6,15 @@ import random #
 import json # библиотека для работы с json форматом
 from vk_api.longpoll import VkLongPoll, VkEventType # для работы с сообщениями
 
+def statusmale(status):
+    b = str()
+    if status == "в сети":
+        b = "появился"
+        return b
+    else:
+        b = "находится"
+        return b
+
 def crossHasID(id): # функция отвечает за значения в словаре. Проверяет есть ли у меня такой же ID искомого пользователя в других списках в словаре
     for i in crossIDs.values():
         if id in i:
@@ -73,7 +82,6 @@ while True: # НАЧАЛО ЦИКЛА
                             vk.messages.send(user_id=userId, message="ID должен содержать только цифры", random_id=random.randint(0, maxint))# Защита от дурака
                     else:
                         vk.messages.send(user_id=userId, message="У вас нет отслеживаемых целей", random_id=random.randint(0, maxint))
-                        vk.messages.send(user_id=userId, message="У вас нет отслеживаемых целей", random_id=random.randint(0, maxint))
  #               elif text.split()[0] == "/delall":# delete #Удаляем пользователя из списка отслеживания ID
   #                  if userId in crossIDs and aimId in crossIDs[userId]:
    #                    while   > 0:
@@ -95,26 +103,30 @@ while True: # НАЧАЛО ЦИКЛА
                     else:
                         vk.messages.send(user_id=userId, message="У вас нет отслеживаемых целей",
                                          random_id=random.randint(0, maxint))
-                elif text == "/now": # Запрашиваем текущий статус отслеживаемых пользователей
+                elif text == "/nowlist": # Запрашиваем текущий статус отслеживаемых пользователей
                     if userId in crossIDs:
+                        vk.messages.send(user_id=userId, message="Список отслеживаемых ID:", random_id=random.randint(0, maxint))
                         outputMsg = "" # Создаем пустю строку
                         for aimId in crossIDs[userId]: #для каждого ID текущего пользователя, который отправил запрос /now
-                            outputMsg += "Пользователь {0} сейачс {1}\n".format(aimsDict[aimId]['name'], aimsDict[aimId]["status"]) #Добавляем в строку статус пользователя
+                            outputMsg += "Пользователь {0} в данный момент {1}\n".format(aimsDict[aimId]['name'], aimsDict[aimId]["status"]) #Добавляем в строку статус пользователя
                             # .format позволяет добавить в {0} и {1} имя и статус искомого человека из словаря искомых пользователей
                         vk.messages.send(user_id=userId, message=outputMsg, random_id=random.randint(0, maxint)) # Отправляем сообщение
                     else:
                         vk.messages.send(user_id=userId, message="У вас нет отслеживаемых целей", random_id=random.randint(0, maxint))
                 elif text.split()[0] == "/now": # Вывод статус отдельного искомого пользователя
                     if userId in crossIDs:
-                        if text.split()[1].isdigit(): # Проверка на дурака
-                            if text.split()[1] in aimsDict:
-                                outputMsg = "Пользователь {0} сейачс {1}\n".format(aimsDict[text.split()[1]]['name'], aimsDict[text.split()[1]]["status"])
-                                vk.messages.send(user_id=userId, message=outputMsg, random_id=random.randint(0, maxint))
-                            # .format позволяет добавить в {0} и {1} имя и статус искомого человека из словаря искомых пользователей
-                            else:
-                                vk.messages.send(user_id=userId,message="Пользователя с таким ID не существует в списке отслеживания", random_id=random.randint(0, maxint))
+                        if text == "/now":
+                            vk.messages.send(user_id=userId, message="Вы не ввели ID пользователя. Повторите попытку, введя команду /now и черзе пробел ID пользователя", random_id=random.randint(0, maxint))
                         else:
-                            vk.messages.send(user_id=userId, message="ID должен содержать только цифры", random_id=random.randint(0, maxint)) #Проверка на дурака
+                            if text.split()[1].isdigit(): # Проверка на дурака
+                                if text.split()[1] in aimsDict:
+                                    outputMsg = "Пользователь {0} в данный момент {1}\n".format(aimsDict[text.split()[1]]['name'], aimsDict[text.split()[1]]["status"])
+                                    vk.messages.send(user_id=userId, message=outputMsg, random_id=random.randint(0, maxint))
+                                # .format позволяет добавить в {0} и {1} имя и статус искомого человека из словаря искомых пользователей
+                                else:
+                                    vk.messages.send(user_id=userId,message="Пользователя с таким ID не существует в списке отслеживания", random_id=random.randint(0, maxint))
+                            else:
+                                vk.messages.send(user_id=userId, message="ID должен содержать только цифры", random_id=random.randint(0, maxint)) #Проверка на дурака
                     else:
                         vk.messages.send(user_id=userId, message="У вас нет отслеживаемых целей", random_id=random.randint(0, maxint))
 
@@ -186,14 +198,14 @@ while True: # НАЧАЛО ЦИКЛА
     for resp in dictResponse: #Создали цикл, в котором гуляем по каждому элементу списка
         currId = str(resp['id']) #Создаём строковую переменную, в которую сохраняем ID текущего в списке пользователя
         if int(resp['online']) == 1: #Если статус равен единице, то
-            currStat = "онлайн" #Создаём переменную CurrStat и записываем туда строку онлайн
+            currStat = "в сети" #Создаём переменную CurrStat и записываем туда строку онлайн
         else:
-            currStat = "оффлайн"# Если же нет, то создаём переменную CurrStat и записываем туда строку оффлайн
+            currStat = "не в сети"# Если же нет, то создаём переменную CurrStat и записываем туда строку оффлайн
         isChanged = False #Содаётся перменная, хранящая информацию о смене статуса
         if aimsDict[currId] != -1: #Если ячейка в словаре искомых пользователей не пустая, то
             if aimsDict[currId]['status'] != currStat: #Если текущий статус не равен предыдущему, то
                 isChanged = True #Статус изменился
-                aimsDict[currId]['report'].append([datetime.datetime.now(), "- В это время {0} был(а) {1}".format(aimsDict[currId]['name'], aimsDict[currId]['status'])]) #
+                aimsDict[currId]['report'].append([datetime.datetime.now(), " - В это время пользователь {0} {2} {1}".format(aimsDict[currId]['name'], aimsDict[currId]['status'], statusmale(aimsDict[currId]['status']))])
                 #Берем пользователя из искомого словаря с текущим ID и добавляем изменения в отчёт, то есть
                 #datetime.datetime.now() - текущая дата
                 #В пустое пространство через метод строки format добавляем в  {0} значение -  aimsDict[currId]['name']
@@ -212,7 +224,7 @@ while True: # НАЧАЛО ЦИКЛА
         outputMsg = "" #Создаём пустую строку
         for aimId in crossIDs[userId]: #Гуляем по искомы пользователям в каждом ищущем пользователе
             if aimsDict[aimId]['isChanged']: #Если статус искомого пользователя был изменён, то
-                outputMsg += "Пользователь {0} сейачс {1}\n".format(aimsDict[aimId]['name'], aimsDict[aimId]["status"]) #То во выходную строку добавляется сообщение об этом
+                outputMsg += "Пользователь {0} {2} {1}\n".format(aimsDict[aimId]['name'], aimsDict[aimId]["status"], statusmale(aimsDict[currId]['status'])) #То во выходную строку добавляется сообщение об этом
 
         if len(outputMsg) != 0: #Если сообщение не пустое, то отправить его пользователю
             vk.messages.send(user_id=userId, message=outputMsg, random_id=random.randint(0, maxint))
